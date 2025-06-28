@@ -60,6 +60,7 @@ namespace Docker.DotNet.Models
         public TaskStatus Status { get; set; }
 
         [JsonPropertyName("DesiredState")]
+        [JsonConverter(typeof(JsonEnumMemberConverter<TaskState>))]
         public TaskState DesiredState { get; set; }
 
         [JsonPropertyName("NetworksAttachments")]

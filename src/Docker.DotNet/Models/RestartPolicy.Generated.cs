@@ -5,6 +5,7 @@ namespace Docker.DotNet.Models
     public class RestartPolicy // (container.RestartPolicy)
     {
         [JsonPropertyName("Name")]
+        [JsonConverter(typeof(JsonEnumMemberConverter<RestartPolicyKind>))]
         public RestartPolicyKind Name { get; set; }
 
         [JsonPropertyName("MaximumRetryCount")]

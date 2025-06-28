@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet.Models;
-using Newtonsoft.Json;
 using Xunit;
 using Xunit.Abstractions;
 

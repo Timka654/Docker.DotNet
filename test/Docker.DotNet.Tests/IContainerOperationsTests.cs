@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet.Models;
@@ -437,7 +438,7 @@ namespace Docker.DotNet.Tests
                         {
                             Stream = true
                         },
-                        new Progress<ContainerStatsResponse>(m => { containerStatsList.Add(m); _output.WriteLine(JsonConvert.SerializeObject(m)); }),
+                        new Progress<ContainerStatsResponse>(m => { containerStatsList.Add(m); _output.WriteLine(System.Text.Json.JsonSerializer.Serialize(m, JsonSerializerOptions.Web)); }),
                         linkedCts.Token
                     );
                 }
@@ -530,7 +531,7 @@ namespace Docker.DotNet.Tests
                         {
                             Stream = true
                         },
-                        new Progress<ContainerStatsResponse>(m => { containerStatsList.Add(m); _output.WriteLine(JsonConvert.SerializeObject(m)); }),
+                        new Progress<ContainerStatsResponse>(m => { containerStatsList.Add(m); _output.WriteLine(System.Text.Json.JsonSerializer.Serialize(m, JsonSerializerOptions.Web)); }),
                         linkedTcs.Token
                     );
                 }

@@ -9,6 +9,7 @@ namespace Docker.DotNet.Models
         public DateTime Timestamp { get; set; }
 
         [JsonPropertyName("State")]
+        [JsonConverter(typeof(JsonEnumMemberConverter<TaskState>))]
         public TaskState State { get; set; }
 
         [JsonPropertyName("Message")]

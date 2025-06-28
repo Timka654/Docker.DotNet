@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet.Models;
-using Newtonsoft.Json;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -141,7 +141,7 @@ namespace Docker.DotNet.Tests
 
                     var monitorTask = _dockerClient.System.MonitorEventsAsync(
                         new ContainerEventsParameters(),
-                        new Progress<Message>((value) => _output.WriteLine($"DockerSystemEvent: {JsonConvert.SerializeObject(value)}")),
+                        new Progress<Message>((value) => _output.WriteLine($"DockerSystemEvent: {System.Text.Json.JsonSerializer.Serialize(value, JsonSerializerOptions.Web)}")),
                         cts.Token);
 
                     // (2) Wait for some time to make sure we get into blocking IO call

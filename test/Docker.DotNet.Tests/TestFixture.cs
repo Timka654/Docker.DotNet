@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet.Models;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace Docker.DotNet.Tests
@@ -25,7 +25,7 @@ namespace Docker.DotNet.Tests
         {
             WriteProgressOutput = new Progress<JSONMessage>(jsonMessage =>
             {
-                var message = JsonConvert.SerializeObject(jsonMessage);
+                var message = System.Text.Json.JsonSerializer.Serialize(jsonMessage, JsonSerializerOptions.Web);
                 Console.WriteLine(message);
                 Debug.WriteLine(message);
             });

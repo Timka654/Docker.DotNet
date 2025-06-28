@@ -1,8 +1,8 @@
 using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet.Models;
-using Newtonsoft.Json;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -58,7 +58,7 @@ namespace Docker.DotNet.Tests
                     FromImage = $"{newRepositoryName}:{newTag}"
                 },
                 null,
-                new Progress<JSONMessage>((message) => _output.WriteLine(JsonConvert.SerializeObject(message))),
+                new Progress<JSONMessage>((message) => _output.WriteLine(System.Text.Json.JsonSerializer.Serialize(message, JsonSerializerOptions.Web))),
                 cts.Token);
 
             TimeSpan delay = TimeSpan.FromMilliseconds(5);

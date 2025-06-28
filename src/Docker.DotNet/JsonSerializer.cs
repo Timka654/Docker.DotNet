@@ -21,8 +21,8 @@ namespace Docker.DotNet
         {
             Converters =
             {
-                new JsonEnumMemberConverter<TaskState>(),
-                new JsonEnumMemberConverter<RestartPolicyKind>(),
+                //new JsonEnumMemberConverter<TaskState>(),
+                //new JsonEnumMemberConverter<RestartPolicyKind>(),
                 new JsonDateTimeConverter(),
                 new JsonNullableDateTimeConverter(),
                 new JsonBase64Converter(),

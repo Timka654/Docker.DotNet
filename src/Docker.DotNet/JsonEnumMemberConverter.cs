@@ -9,28 +9,58 @@ using System.Text.Json.Serialization;
 namespace Docker.DotNet;
 
 // Adapted from https://github.com/dotnet/runtime/issues/74385#issuecomment-1705083109
-internal sealed class JsonEnumMemberConverter<TEnum> : JsonStringEnumConverter<TEnum> where TEnum : struct, Enum
+internal sealed class JsonEnumMemberConverter<TEnum> : JsonConverter<TEnum> where TEnum : struct, Enum
 {
-    public JsonEnumMemberConverter() : base(namingPolicy: ResolveNamingPolicy())
-    {
-    }
+    static Dictionary<string, string> nameCompareMap = new(StringComparer.OrdinalIgnoreCase);
 
-    private static JsonNamingPolicy ResolveNamingPolicy()
+    static Dictionary<int, string> valueCompareMap = new();
+
+    static JsonEnumMemberConverter()
     {
-        var map = typeof(TEnum).GetFields(BindingFlags.Public | BindingFlags.Static)
-            .Select(f => (f.Name, AttributeName: f.GetCustomAttribute<EnumMemberAttribute>()?.Value))
+        var members = typeof(TEnum).GetFields(BindingFlags.Public | BindingFlags.Static)
+                .Select(f => (Value: (int)f.GetValue(null), f.Name, AttributeName: f.GetCustomAttribute<EnumMemberAttribute>()?.Value))
+                .ToArray();
+
+        nameCompareMap = members
             .Where(pair => pair.AttributeName != null)
             .ToDictionary(e => e.Name, e => e.AttributeName);
 
-        return map.Count > 0 ? new EnumMemberNamingPolicy(map) : null;
+        valueCompareMap = members
+            .ToDictionary(e => e.Value, e => e.AttributeName);
+
     }
 
-    private sealed class EnumMemberNamingPolicy : JsonNamingPolicy
+    public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        private readonly IReadOnlyDictionary<string, string> _map;
+        if (reader.TryGetInt64(out var value))
+        {
+            return (TEnum)((object)value);
+        }
 
-        public EnumMemberNamingPolicy(IReadOnlyDictionary<string, string> map) => _map = map;
+        if (reader.TokenType == JsonTokenType.String)
+        {
+            return Enum.Parse<TEnum>(reader.GetString(), true);
+        }
 
-        public override string ConvertName(string name) => _map.TryGetValue(name, out var newName) ? newName : name;
+        throw new JsonException($"Cannot convert {reader.TokenType} to {typeof(TEnum).Name}.");
+    }
+
+    public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
+    {
+        var name = Enum.GetName(value);
+
+        if (nameCompareMap.TryGetValue(name, out var v))
+        {
+            writer.WriteStringValue(v);
+        }
+        else if (valueCompareMap.TryGetValue(Convert.ToInt32(value), out var intValue))
+        {
+            writer.WriteStringValue(intValue);
+        }
+        else
+        {
+            // Fallback to the default enum name if no EnumMember attribute is found
+            writer.WriteStringValue(name);
+        }
     }
 }
